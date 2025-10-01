@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cly Lab Server - MC服务器推荐</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-dark: #1a0b2e;
+            --primary-purple: #6b21a8;
+            --primary-blue: #2563eb;
+            --accent-purple: #9333ea;
+            --accent-blue: #3b82f6;
+            --text-light: #e0e7ff;
+            --success-green: #10b981;
+            --error-red: #ef4444;
+            --warning-orange: #f59e0b;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #2e1065 50%, var(--primary-blue) 100%);
+            color: var(--text-light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 背景动画 */
+        .bg-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(147, 51, 234, 0.3) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .shape-1 {
+            width: 200px;
+            height: 200px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 150px;
+            height: 150px;
+            top: 60%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+
+        .shape-3 {
+            width: 100px;
+            height: 100px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        /* 主要内容 */
+        .main-content {
+            text-align: center;
+            z-index: 2;
+            padding: 2rem;
+            max-width: 600px;
+        }
+
+        .logo {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #fff, var(--accent-purple), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        .title {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--accent-purple), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 3rem;
+            color: rgba(255, 255, 255, 0.8);
+            animation: slideIn 1s ease-out;
+        }
+
+        /* 加入按钮 */
+        .join-container {
+            margin-top: 3rem;
+        }
+
+        .join-button {
+            background: linear-gradient(45deg, var(--accent-purple), var(--accent-blue));
+            color: white;
+            border: none;
+            padding: 1.5rem 3rem;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(147, 51, 234, 0.3);
+        }
+
+        .join-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(147, 51, 234, 0.5);
+        }
+
+        .join-button:active {
+            transform: scale(0.95);
+        }
+
+        .join-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .join-button:hover::before {
+            left: 100%;
+        }
+
+        .button-text {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        /* 服务器状态按钮 */
+        .status-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, var(--success-green), #34d399);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+
+        .status-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
+        }
+
+        /* 服务器状态窗口 */
+        .status-window {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(26, 11, 46, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            z-index: 2000;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            display: none;
+        }
+
+        .status-window.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-purple);
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .close-button:hover {
+            background: rgba(147, 51, 234, 0.2);
+        }
+
+        .server-info {
+            margin-bottom: 1.5rem;
+        }
+
+        .server-address {
+            background: rgba(147, 51, 234, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            font-family: monospace;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copy-address {
+            background: var(--accent-purple);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+        }
+
+        .copy-address:hover {
+            background: var(--primary-purple);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-online {
+            background: var(--success-green);
+        }
+
+        .status-offline {
+            background: var(--error-red);
+        }
+
+        .status-loading {
+            background: var(--warning-orange);
+        }
+
+        .players-info {
+            background: rgba(59, 130, 246, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .players-count {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .players-list {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 0.5rem;
+        }
+
+        .player-item {
+            padding: 0.3rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .player-item:last-child {
+            border-bottom: none;
+        }
+
+        .ping-info {
+            background: rgba(245, 158, 11, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+        }
+
+        .refresh-button {
+            background: linear-gradient(45deg, var(--accent-purple), var(--accent-blue));
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-button:hover {
+            transform: scale(1.05);
+        }
+
+        .refresh-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
+        }
+
+        /* 动画效果 */
+        @keyframes glow {
+            0%, 100% {
+                filter: hue-rotate(0deg) drop-shadow(0 0 20px rgba(147, 51, 234, 0.5));
+            }
+            50% {
+                filter: hue-rotate(45deg) drop-shadow(0 0 30px rgba(59, 130, 246, 0.7));
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.7;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -40%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 鼠标特效 */
+        .cursor-effect {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, var(--accent-purple), transparent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: screen;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .logo { font-size: 3rem; }
+            .title { font-size: 2rem; }
+            .subtitle { font-size: 1.2rem; }
+            .join-button { padding: 1rem 2rem; font-size: 1.2rem; }
+            .status-button {
+                top: 10px;
+                right: 10px;
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+            .status-window {
+                padding: 1.5rem;
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景动画 -->
+    <div class="bg-animation">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+    </div>
+
+    <!-- 主要内容 -->
+    <div class="main-content">
+        <div class="logo">
+            <i class="fas fa-cube"></i>
+        </div>
+
+        <h1 class="title">Cly Lab Server</h1>
+
+        <p class="subtitle">欢迎加入我们的Minecraft服务器社区</p>
+
+        <div class="join-container">
+            <button class="join-button" onclick="joinServer()">
+                <span class="button-text">
+                    <i class="fab fa-qq"></i>
+                    加入QQ群
+                </span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 服务器状态按钮 -->
+    <button class="status-button" onclick="showStatus()" title="查看服务器状态">
+        <i class="fas fa-server"></i>
+    </button>
+
+    <!-- 服务器状态窗口 -->
+    <div class="status-window" id="statusWindow">
+        <div class="status-header">
+            <h2 class="status-title">服务器状态</h2>
+            <button class="close-button" onclick="hideStatus()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="server-info">
+            <div class="server-address">
+                <span>cd.s1.6net.plus:58357</span>
+                <button class="copy-address" onclick="copyAddress()">
+                    <i class="fas fa-copy"></i> 复制
+                </button>
+            </div>
+
+            <div class="status-indicator">
+                <div class="status-dot status-loading" id="statusDot"></div>
+                <span id="statusText">正在查询服务器状态...</span>
+            </div>
+
+            <div class="players-info">
+                <div class="players-count">
+                    <i class="fas fa-users"></i>
+                    <span id="playersCount">在线玩家: --/--</span>
+                </div>
+                <div class="players-list" id="playersList">
+                    <!-- 玩家列表将在这里显示 -->
+                </div>
+            </div>
+
+            <div class="ping-info">
+                <i class="fas fa-bolt"></i>
+                <span id="pingInfo">延迟: -- ms</span>
+            </div>
+        </div>
+
+        <button class="refresh-button" onclick="checkServerStatus()" id="refreshButton">
+            <span class="button-text">
+                <i class="fas fa-sync-alt"></i>
+                刷新状态
+            </span>
+        </button>
+    </div>
+
+    <script>
+        // 服务器地址配置
+        const SERVER_ADDRESS = "cd.s1.6net.plus:58357";
+        const SERVER_VERSION = "1.20.1";
+
+        // 显示服务器状态窗口
+        function showStatus() {
+            const window = document.getElementById('statusWindow');
+            window.classList.add('active');
+            checkServerStatus();
+        }
+
+        // 隐藏服务器状态窗口
+        function hideStatus() {
+            const window = document.getElementById('statusWindow');
+            window.classList.remove('active');
+        }
+
+        // 复制服务器地址
+        function copyAddress() {
+            navigator.clipboard.writeText(SERVER_ADDRESS).then(() => {
+                const button = event.target;
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i> 已复制';
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                }, 2000);
+            });
+        }
+
+        // 加入服务器功能
+        function joinServer() {
+            // 打开QQ群链接
+            window.open('https://qm.qq.com/q/fNQPvteHvO', '_blank');
+
+            // 按钮点击动画
+            const button = event.target;
+            button.style.animation = 'pulse 0.3s ease';
+            setTimeout(() => {
+                button.style.animation = '';
+            }, 300);
+        }
+
+        // Minecraft Server List Ping 协议实现
+        async function checkServerStatus() {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            const playersCount = document.getElementById('playersCount');
+            const playersList = document.getElementById('playersList');
+            const pingInfo = document.getElementById('pingInfo');
+            const refreshButton = document.getElementById('refreshButton');
+
+            // 禁用刷新按钮并显示加载状态
+            refreshButton.disabled = true;
+            refreshButton.innerHTML = '<span class="loading-spinner"></span>查询中...';
+
+            try {
+                // 解析服务器地址
+                const [host, port] = SERVER_ADDRESS.split(':');
+                const serverPort = parseInt(port) || 25565;
+
+                // 使用第三方API查询服务器状态（避免CORS限制）
+                const response = await fetch(`https://api.mcsrvstat.us/2/${host}:${serverPort}`);
+                const data = await response.json();
+
+                if (data.online) {
+                    // 服务器在线
+                    statusDot.className = 'status-dot status-online';
+                    statusText.textContent = '服务器在线';
+
+                    // 更新玩家信息
+                    playersCount.textContent = `在线玩家: ${data.players?.online || 0}/${data.players?.max || 0}`;
+
+                    // 更新玩家列表
+                    playersList.innerHTML = '';
+                    if (data.players?.list && data.players.list.length > 0) {
+                        data.players.list.forEach(player => {
+                            const playerItem = document.createElement('div');
+                            playerItem.className = 'player-item';
+                            playerItem.textContent = player;
+                            playersList.appendChild(playerItem);
+                        });
+                    } else {
+                        playersList.innerHTML = '<div class="player-item">暂无在线玩家</div>';
+                    }
+
+                    // 更新延迟信息
+                    pingInfo.textContent = `延迟: ${data.debug?.ping ? '✓' : '--'} ms`;
+
+                } else {
+                    // 服务器离线
+                    statusDot.className = 'status-dot status-offline';
+                    statusText.textContent = '服务器离线';
+                    playersCount.textContent = '在线玩家: 0/0';
+                    playersList.innerHTML = '<div class="player-item">服务器当前不可用</div>';
+                    pingInfo.textContent = '延迟: -- ms';
+                }
+
+            } catch (error) {
+                console.error('服务器状态查询失败:', error);
+                statusDot.className = 'status-dot status-offline';
+                statusText.textContent = '查询失败';
+                playersCount.textContent = '在线玩家: --/--';
+                playersList.innerHTML = '<div class="player-item">查询失败，请稍后重试</div>';
+                pingInfo.textContent = '延迟: -- ms';
+            } finally {
+                // 重新启用刷新按钮
+                refreshButton.disabled = false;
+                refreshButton.innerHTML = '<span class="button-text"><i class="fas fa-sync-alt"></i>刷新状态</span>';
+            }
+        }
+
+        // 页面加载动画
+        window.addEventListener('load', function() {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 1s ease-in';
+
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 100);
+        });
+
+        // 鼠标特效
+        document.addEventListener('mousemove', function(e) {
+            // 创建光标效果
+            const effect = document.createElement('div');
+            effect.className = 'cursor-effect';
+            effect.style.left = e.clientX - 10 + 'px';
+            effect.style.top = e.clientY - 10 + 'px';
+            document.body.appendChild(effect);
+
+            // 移除效果
+            setTimeout(() => {
+                effect.remove();
+            }, 1000);
+
+            // 创建粒子轨迹
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.style.position = 'fixed';
+                    particle.style.left = e.clientX + 'px';
+                    particle.style.top = e.clientY + 'px';
+                    particle.style.width = '4px';
+                    particle.style.height = '4px';
+                    particle.style.background = 'rgba(147, 51, 234, 0.6)';
+                    particle.style.borderRadius = '50%';
+                    particle.style.pointerEvents = 'none';
+                    particle.style.zIndex = '9998';
+                    document.body.appendChild(particle);
+
+                    // 粒子动画
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 20 + Math.random() * 30;
+                    const duration = 500 + Math.random() * 500;
+
+                    particle.animate([
+                        {
+                            transform: 'translate(0, 0) scale(1)',
+                            opacity: 1
+                        },
+                        {
+                            transform: `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) scale(0)`,
+                            opacity: 0
+                        }
+                    ], {
+                        duration: duration,
+                        easing: 'ease-out'
+                    });
+
+                    // 移除粒子
+                    setTimeout(() => {
+                        particle.remove();
+                    }, duration);
+                }, i * 100);
+            }
+        });
+
+        // 键盘快捷键
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Enter' || e.code === 'Space') {
+                joinServer();
+            }
+            if (e.code === 'Escape') {
+                hideStatus();
+            }
+        });
+
+        // 点击窗口外部关闭状态窗口
+        document.addEventListener('click', function(e) {
+            const statusWindow = document.getElementById('statusWindow');
+            const statusButton = document.querySelector('.status-button');
+
+            if (statusWindow.classList.contains('active') &&
+                !statusWindow.contains(e.target) &&
+                !statusButton.contains(e.target)) {
+                hideStatus();
+            }
+        });
+    </script>
+</body>
+</html>
